@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>График времени работы объектов</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="chart"></canvas>
+
+    <script>
+
+        // Предположим, что вы уже загрузили и распарсили обновленный JSON файл
+        var jsonData = [
+            {
+                "date": "2023-06-23",
+                "objects": [
+                    {
+                        "id": "1",
+                        "status": "В работе",
+                        "time": 120
+                    },
+                    {
+                        "id": "1",
+                        "status": "В простое",
+                        "time": 60
+                    },
+                    // Другие записи из JSON файла
+                ]
+            }
+        ];
+
+        // Получите массив дат из JSON данных
+        var dates = jsonData.map(entry => entry.date);
+
+        // Получите массив объектов из JSON данных
+        var objects = [...new Set(jsonData.flatMap(entry => entry.objects.map(obj => obj.id)))];
+
+        // Получите массив времени работы и простоя для каждого объекта
+        var data = objects.map(object => {
+            var workTimes = jsonData.flatMap(entry => entry.objects.filter(obj => obj.id === object && obj.status === "В работе").map(obj => obj.time));
+            var idleTimes = jsonData.flatMap(entry => entry.objects.filter(obj => obj.id === object && obj.status === "В простое").map(obj => obj.time));
+
+            return {
+                label: "Object " + object,
+                data: workTimes,
+                backgroundColor: "rgba(54, 162, 235, 0.5)",
+                borderColor: "rgb(54, 162, 235)",
+                borderWidth: 1,
+                stack: "work"
+            },
+            {
+                label: "Object " + object,
+                data: idleTimes,
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                borderColor: "rgb(255, 99, 132)",
+                borderWidth: 1,
+                stack: "idle"
+            };
+        });
+
+        // Создайте график с использованием Chart.js
+        var ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dates,
+                datasets: data
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'График времени работы и простоя объектов на площадке'
+                },
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true
+                    }
+                }
+            }
+        });
+
+
+    </script>
+</body>
+</html>

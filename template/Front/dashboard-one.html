@@ -100,8 +100,6 @@
       <div style="position: relative;">
           <!-- элемент video -->
           <video id="videoPlayer" controls style="width: 100%; max-height: 500px;"></video>
-          <!-- элемент canvas -->
-          <canvas id="canvas" style="width: 100%; max-height: 500px; position: absolute; top: 0; left: 0;"></canvas>
       </div>
       <div>
           <!-- Добавлен элемент textarea для отображения содержимого файла -->
@@ -114,53 +112,21 @@
           });
 
           document.getElementById('fileInput').addEventListener('change', function(e) {
-              var file = e.target.files[0];
-              var url = URL.createObjectURL(file);
-
-              // Загрузить видео в элемент video
-              document.getElementById('videoPlayer').src = url;
-          });
-
-          // JavaScript для работы с Canvas API
-          const canvas = document.getElementById('canvas');
-          const context = canvas.getContext('2d');
-          const videoPlayer = document.getElementById('videoPlayer');
-
-          let drawing = false;
-
-          canvas.addEventListener('mousedown', (event) => {
-              drawing = true;
-              context.beginPath();
-          });
-
-          canvas.addEventListener('mousemove', (event) => {
-              if (!drawing) return;
-              context.lineWidth = 5;
-              context.strokeStyle = 'red';
-              context.lineTo(event.clientX, event.clientY);
-              context.stroke();
-          });
-
-          canvas.addEventListener('mouseup', () => {
-              drawing = false;
-          });
-
-          canvas.addEventListener('mouseout', () => {
-              drawing = false;
-          });
-
-          videoPlayer.addEventListener('play', () => {
-              draw(videoPlayer, context, canvas.width, canvas.height);
-          });
-
-          function draw(videoPlayer, context, width, height) {
-              if (videoPlayer.paused || videoPlayer.ended) return;
-              context.drawImage(videoPlayer, 0, 0, width, height);
-              setTimeout(() => {
-                  draw(videoPlayer, context, width, height);
-              }, 0);
+          var file = e.target.files[0];
+          
+          // Создание FileReader
+          var reader = new FileReader();
+          
+          reader.addEventListener("load", function () {
+              // Загрузить видео в элемент video после того, как файл был полностью загружен
+              document.getElementById('videoPlayer').src = reader.result;
+          }, false);
+          
+          // Чтение файла как URL
+          if (file) {
+              reader.readAsDataURL(file);
           }
-
+        });
       </script>
     </div>
 
